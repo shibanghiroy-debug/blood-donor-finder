@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blood Donor System</title>
+<style>
+  :root{--red:#b91c1c;--red-d:#991b1b;--bg:#faf7f6;--card:#fff;--text:#1f2328;--muted:#6b7280;--line:#e5e1df;--ok:#166534;--okbg:#dcfce7;--errbg:#fee2e2;--err:#991b1b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:var(--red);color:#fff;padding:20px 16px;text-align:center}
+  header h1{margin:0;font-size:1.6rem}
+  header p{margin:4px 0 0;opacity:.85;font-size:.95rem}
+  main{max-width:860px;margin:0 auto;padding:16px}
+  nav{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+  nav button{flex:1;min-width:120px;padding:12px;border:1px solid var(--line);background:var(--card);border-radius:10px;font-size:1rem;cursor:pointer;color:var(--text)}
+  nav button.active{background:var(--red);color:#fff;border-color:var(--red)}
+  section{display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+  section.active{display:block}
+  h2{margin:0 0 14px;font-size:1.2rem}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+  label{display:block;font-size:.9rem;color:var(--muted);margin-bottom:4px}
+  input,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:1rem;background:#fff;color:var(--text)}
+  input:focus,select:focus{outline:2px solid var(--red);outline-offset:0;border-color:var(--red)}
+  .full{grid-column:1/-1}
+  .radio{display:flex;gap:18px;padding:8px 0}
+  .radio label{display:flex;align-items:center;gap:6px;color:var(--text);margin:0}
+  .radio input{width:auto}
+  .btn{background:var(--red);color:#fff;border:0;padding:12px 20px;border-radius:8px;font-size:1rem;cursor:pointer}
+  .btn:hover{background:var(--red-d)}
+  .btn.sec{background:#fff;color:var(--red);border:1px solid var(--red)}
+  .msg{margin-top:14px;padding:12px 14px;border-radius:8px;display:none}
+  .msg.ok{display:block;background:var(--okbg);color:var(--ok)}
+  .msg.err{display:block;background:var(--errbg);color:var(--err)}
+  .msg ul{margin:6px 0 0;padding-left:20px}
+  .info{margin:14px 0 8px;color:var(--muted);font-size:.95rem}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.95rem}
+  th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:.85rem}
+  tr.same td{background:var(--okbg)}
+  .tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:.8rem;background:#f3f4f6}
+  tr.same .tag{background:#bbf7d0;color:var(--ok)}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .empty{color:var(--muted);padding:16px 0}
+  .tablewrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<header>
+  <h1>🩸 Blood Donor System</h1>
+  <p>Find a donor or register to donate</p>
+</header>
+
+<main>
+  <nav>
+    <button class="active" data-tab="need">Need Blood</button>
+    <button data-tab="donate">Donate Blood</button>
+    <button data-tab="list">All Donors</button>
+  </nav>
+
+  <!-- NEED BLOOD -->
+  <section id="need" class="active">
+    <h2>Request Donation</h2>
+    <div class="grid">
+      <div><label for="n_group">Blood group needed</label><select id="n_group"></select></div>
+      <div><label for="n_city">Your city</label><input id="n_city" placeholder="e.g. Roorkee"></div>
+      <div class="full"><button class="btn" id="n_btn">Find donors</button></div>
+    </div>
+    <div class="info" id="n_info"></div>
+    <div class="tablewrap" id="n_results"></div>
+  </section>
+
+  <!-- DONATE BLOOD -->
+  <section id="donate">
+    <h2>Donor Registration</h2>
+    <div class="grid">
+      <div class="full"><label for="d_name">Name</label><input id="d_name"></div>
+      <div><label for="d_group">Blood group</label><select id="d_group"></select></div>
+      <div><label for="d_age">Age</label><input id="d_age" type="number" min="0"></div>
+      <div><label for="d_weight">Weight (kg)</label><input id="d_weight" type="number" min="0" step="0.1"></div>
+      <div><label for="d_city">City</label><input id="d_city"></div>
+      <div><label for="d_contact">Contact number (10 digits)</label><input id="d_contact" inputmode="numeric" maxlength="10"></div>
+      <div class="full">
+        <label>Donated in last 3 months?</label>
+        <div class="radio">
+          <label><input type="radio" name="recent" value="no" checked> No</label>
+          <label><input type="radio" name="recent" value="yes"> Yes</label>
+        </div>
+      </div>
+      <div class="full"><button class="btn" id="d_btn">Register as donor</button></div>
+    </div>
+    <div class="msg" id="d_msg"></div>
+  </section>
+
+  <!-- ALL DONORS -->
+  <section id="list">
+    <h2>All Donors</h2>
+    <div class="bar">
+      <button class="btn sec" id="exp">Export donors.csv</button>
+      <button class="btn sec" id="imp">Import donors.csv</button>
+      <input type="file" id="file" accept=".csv,text/csv" hidden>
+    </div>
+    <div class="info">Donors are saved in this browser. Import your existing <b>donors.csv</b> to load it, and export to get a file the Python program can use.</div>
+    <div class="msg" id="l_msg"></div>
+    <div class="tablewrap" id="l_results"></div>
+  </section>
+</main>
+
+<script>
+// Same compatibility rules as blood_donor.py
+const canReceiveFrom = {
+  "A+":["A+","A-","O+","O-"],
+  "A-":["A-","O-"],
+  "B+":["B+","B-","O+","O-"],
+  "B-":["B-","O-"],
+  "AB+":["A+","A-","B+","B-","O+","O-","AB+","AB-"],
+  "AB-":["A-","B-","AB-","O-"],
+  "O+":["O+","O-"],
+  "O-":["O-"]
+};
+const GROUPS = Object.keys(canReceiveFrom);
+const KEY = "blood_donors_v1";
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || []; }catch(e){ return []; } }
+function save(d){ try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(e){} }
+
+function checkEligibility(age, weight, recent){
+  const r = [];
+  if(!(age >= 18 && age <= 65)) r.push("Age must be between 18 and 65");
+  if(weight < 50) r.push("Weight must be at least 50 kg");
+  if(recent === "yes") r.push("Cannot donate if donated in last 3 months");
+  return r;
+}
+
+function fillGroups(){
+  for(const id of ["n_group","d_group"]){
+    $(id).innerHTML = GROUPS.map(g => `<option>${g}</option>`).join("");
+  }
+}
+
+// Tabs
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("active", x === b));
+  document.querySelectorAll("section").forEach(s => s.classList.toggle("active", s.id === b.dataset.tab));
+  if(b.dataset.tab === "list") renderList();
+});
+
+// Need blood
+$("n_btn").onclick = () => {
+  const group = $("n_group").value;
+  const city = $("n_city").value.trim().toLowerCase();
+  const ok = canReceiveFrom[group];
+  const same = [], other = [];
+  for(const r of load()){
+    if(ok.includes(r.group)){
+      (city && r.city.trim().toLowerCase() === city ? same : other).push(r);
+    }
+  }
+  const total = same.length + other.length;
+  $("n_info").textContent = `${group} can receive from: ${ok.join(", ")}  |  ` + (total ? `${total} donor(s) found` : "No match found yet");
+  if(!total){ $("n_results").innerHTML = ""; return; }
+  const row = (r, isSame) => `<tr class="${isSame?"same":""}"><td>${esc(r.name)}</td><td>${esc(r.group)}</td><td>${esc(r.city)}</td><td>${esc(r.contact)}</td><td><span class="tag">${isSame?"Same city":"Other city"}</span></td></tr>`;
+  $("n_results").innerHTML = `<table><thead><tr><th>Name</th><th>Group</th><th>City</th><th>Contact</th><th>Match</th></tr></thead><tbody>${same.map(r=>row(r,true)).join("")}${other.map(r=>row(r,false)).join("")}</tbody></table>`;
+};
+
+// Donate
+$("d_btn").onclick = () => {
+  const name = $("d_name").value.trim(), group = $("d_group").value, city = $("d_city").value.trim();
+  const contact = $("d_contact").value.trim();
+  const age = parseInt($("d_age").value, 10), weight = parseFloat($("d_weight").value);
+  const recent = document.querySelector('input[name="recent"]:checked').value;
+  const msg = $("d_msg");
+  const problems = [];
+  if(!name) problems.push("Name is required");
+  if(!city) problems.push("Location is required");
+  if(!/^\d{10}$/.test(contact)) problems.push("Contact must be a 10-digit number");
+  if(Number.isNaN(age) || Number.isNaN(weight)){
+    problems.push("Age and weight must be numbers");
+  } else {
+    problems.push(...checkEligibility(age, weight, recent));
+  }
+  if(problems.length){
+    msg.className = "msg err";
+    msg.innerHTML = "Rejected:<ul>" + problems.map(p => `<li>${esc(p)}</li>`).join("") + "</ul>";
+    return;
+  }
+  const d = load(); d.push({name, group, city, contact}); save(d);
+  msg.className = "msg ok"; msg.textContent = "Successfully registered as a donor!";
+  ["d_name","d_age","d_weight","d_city","d_contact"].forEach(i => $(i).value = "");
+  document.querySelector('input[name="recent"][value="no"]').checked = true;
+};
+
+// List
+function renderList(){
+  const d = load();
+  $("l_results").innerHTML = d.length
+    ? `<table><thead><tr><th>Name</th><th>Group</th><th>City</th><th>Contact</th></tr></thead><tbody>${d.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.group)}</td><td>${esc(r.city)}</td><td>${esc(r.contact)}</td></tr>`).join("")}</tbody></table>`
+    : `<div class="empty">No donors yet.</div>`;
+}
+
+// CSV (same column order as donors.csv: name, blood group, location, contact; no header)
+function parseCSV(text){
+  const rows = []; let row = [], cur = "", q = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(q){
+      if(c === '"'){ if(text[i+1] === '"'){ cur += '"'; i++; } else q = false; }
+      else cur += c;
+    } else if(c === '"') q = true;
+    else if(c === ","){ row.push(cur); cur = ""; }
+    else if(c === "\n" || c === "\r"){
+      if(c === "\r" && text[i+1] === "\n") i++;
+      row.push(cur); cur = ""; rows.push(row); row = [];
+    } else cur += c;
+  }
+  if(cur !== "" || row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+const csvCell = v => /[",\n\r]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v;
+
+$("exp").onclick = () => {
+  const csv = load().map(r => [r.name, r.group, r.city, r.contact].map(csvCell).join(",")).join("\r\n") + "\r\n";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
+  a.download = "donors.csv"; a.click(); URL.revokeObjectURL(a.href);
+};
+$("imp").onclick = () => $("file").click();
+$("file").onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    const d = load(); let added = 0, skipped = 0;
+    for(const r of parseCSV(String(rd.result))){
+      if(r.length >= 4 && GROUPS.includes(r[1].trim().toUpperCase())){
+        d.push({name:r[0], group:r[1].trim().toUpperCase(), city:r[2], contact:r[3]}); added++;
+      } else if(r.some(x => x.trim())) skipped++;
+    }
+    save(d); renderList();
+    const m = $("l_msg"); m.className = "msg ok";
+    m.textContent = `Imported ${added} donor(s)` + (skipped ? `, skipped ${skipped} invalid row(s).` : ".");
+    e.target.value = "";
+  };
+  rd.readAsText(f);
+};
+
+fillGroups();
+renderList();
+</script>
+</body>
+</html>
