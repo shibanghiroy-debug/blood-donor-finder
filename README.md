@@ -59,6 +59,10 @@ The project has two versions that work together:
 
 This is a student project made for learning. The eligibility rules are simple examples and are not medical advice. For real donations, please contact a hospital or blood bank.
 
+## 🌐 Live demo
+
+Try the web version here: [Blood Donor Finder (live)](https://shibanghiroy-debug.github.io/blood-donor-finder/blood_donor.html)
+
 ## Team
 
 Made for a hackathon by: *Anshika Rathi, Shreya Kandlwal, Shibanghi Roy, Deeksha Grover*
