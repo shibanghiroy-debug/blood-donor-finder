@@ -61,4 +61,4 @@ This is a student project made for learning. The eligibility rules are simple ex
 
 ## Team
 
-Made for a hackathon by: *(Anshika Rathi, Shreya Kandlwal, Shibanghi Roy, Deeksha Grover)*
+Made for a hackathon by: *Anshika Rathi, Shreya Kandlwal, Shibanghi Roy, Deeksha Grover*
